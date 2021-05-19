@@ -143,8 +143,6 @@ impl QmlApp {
                 #include <QtQuick/QQuickView>
                 #include <QtQml/QtQml>
                 #include <QtCore/QtCore>
-
-                #include <sailfishapp.h>
             }}
             cpp!([argc as "int", argv as "char**"] -> QmlApp as "QmlApplicationHolder" {
                 static int _argc  = argc;
