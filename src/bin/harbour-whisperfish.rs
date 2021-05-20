@@ -86,7 +86,6 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
         // Currently not possible, default QmlEngine does not run asynchronous.
         // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
 
-        #[cfg(feature = "sailfish")]
         gui::run(config).await.unwrap();
     });
 

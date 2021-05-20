@@ -1,5 +1,4 @@
 use std::cell::RefCell;
-#[cfg(feature = "sailfish")]
 use std::rc::Rc;
 
 #[cfg(not(feature = "harbour"))]
@@ -120,7 +119,6 @@ impl AppState {
         cfg!(feature = "harbour")
     }
 
-    #[cfg(feature = "sailfish")]
     fn new() -> Self {
         Self {
             base: Default::default(),
@@ -183,7 +181,6 @@ impl WhisperfishApp {
     }
 }
 
-#[cfg(feature = "sailfish")]
 fn long_version() -> String {
     let pkg = env!("CARGO_PKG_VERSION");
     let commit = env!("VERGEN_GIT_SHA_SHORT");
@@ -199,18 +196,22 @@ fn long_version() -> String {
     }
 }
 
-#[cfg(feature = "sailfish")]
 pub async fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Error> {
     // XXX this arc thing should be removed in the future and refactored
     let config = std::sync::Arc::new(config);
 
-    let mut app = QmlApp::application("harbour-whisperfish".into());
+    //#[cfg(feature = "sailfish")]
+    //let mut app = QmlApp::application("harbour-whisperfish".into());
+    //app.install_default_translator().unwrap();
+
+    //#[cfg(not(feature = "sailfish"))]
+    let mut app = QmlApp::application("whisperfish".into());
+
     let long_version: QString = long_version().into();
     log::info!("QmlApp::application loaded - version {}", long_version);
     let version: QString = env!("CARGO_PKG_VERSION").into();
     app.set_title("Whisperfish".into());
     app.set_application_version(version.clone());
-    app.install_default_translator().unwrap();
 
     // XXX Spaghetti
     let session_actor = actor::SessionActor::new(&mut app).start();

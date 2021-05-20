@@ -21,8 +21,6 @@ cpp! {{
     #include <QtGui/qpa/qwindowsysteminterface.h>
     #include <QtQuick/QQuickWindow>
 
-    #include <sailfishapp.h>
-
     struct QmlSingleApplicationGuard {
         QmlSingleApplicationGuard() {
             rust!(Rust_QmlApplicationHolder_ctor[] {
@@ -43,10 +41,9 @@ cpp! {{
         std::unique_ptr<QQuickView> view;
 
         QmlApplicationHolder(int &argc, char **argv)
-            : app(SailfishApp::application(argc, argv))
-            , view(SailfishApp::createView()) {
-                self->view->setSource(SailfishApp::pathTo("qml/harbour-whisperfish.qml"));
-
+            : app(new QGuiApplication(argc, argv)),
+              view(new QQuickView(QUrl::fromLocalFile("/home/be/test.qml"))) {
+                printf("QmlApplicationHolder::QmlApplicationHolder\n");
                 QObject::connect(
                     view->engine(),
                     &QQmlEngine::quit,
@@ -159,6 +156,7 @@ impl QmlApp {
                         strcpy(_argv[i], argv[i]);
                     }
                 }
+                printf("INSIDE C++\n");
                 return QmlApplicationHolder(_argc, _argv);
             })
         };
@@ -251,37 +249,6 @@ impl QmlApp {
             cpp!([self as "QmlApplicationHolder*", version as "QString"] {
                 self->app->setApplicationVersion(version);
             })
-        }
-    }
-
-    pub fn install_default_translator(&mut self) -> Result<(), anyhow::Error> {
-        let result = unsafe {
-            cpp!([self as "QmlApplicationHolder*"] -> u32 as "int" {
-                const QString transDir = SailfishApp::pathTo(QStringLiteral("translations")).toLocalFile();
-                const QString appName = qApp->applicationName();
-                QTranslator translator(qApp);
-                int result = 0;
-                if (!translator.load(QLocale(), appName, "-", transDir)) {
-                    qWarning() << "Failed to load translator for" << QLocale::system().uiLanguages()
-                               << "Searched" << transDir << "for" << appName;
-                    result = 1;
-                    if(!translator.load(appName, transDir)) {
-                        qWarning() << "Could not load default translator either!";
-                        result = 2;
-                    }
-                }
-                self->app->installTranslator(&translator);
-                return result;
-            })
-        };
-        match result {
-            0 => Ok(()),
-            1 => {
-                log::info!("Default translator loaded.");
-                Ok(())
-            }
-            2 => anyhow::bail!("No translators found"),
-            _ => unreachable!("Impossible return code from C++"),
         }
     }
 
