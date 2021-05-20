@@ -256,8 +256,6 @@ pub async fn run(config: crate::config::SignalConfig) -> Result<(), anyhow::Erro
     app.set_object_property("SetupWorker".into(), whisperfish.setup_worker.pinned());
     app.set_object_property("AppState".into(), whisperfish.app_state.pinned());
 
-    app.set_source(QmlApp::path_to("qml/harbour-whisperfish.qml".into()));
-
     if config.autostart
         && !whisperfish
             .settings

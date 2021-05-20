@@ -45,6 +45,8 @@ cpp! {{
         QmlApplicationHolder(int &argc, char **argv)
             : app(SailfishApp::application(argc, argv))
             , view(SailfishApp::createView()) {
+                self->view->setSource(SailfishApp::pathTo("qml/harbour-whisperfish.qml"));
+
                 QObject::connect(
                     view->engine(),
                     &QQmlEngine::quit,
@@ -196,14 +198,6 @@ impl QmlApp {
         })
     }
 
-    pub fn path_to(path: QString) -> QUrl {
-        unsafe {
-            cpp!([path as "QString"] -> QUrl as "QUrl" {
-                return SailfishApp::pathTo(path);
-            })
-        }
-    }
-
     #[allow(dead_code)]
     pub fn exec(&self) {
         unsafe {
@@ -241,14 +235,6 @@ impl QmlApp {
             app: self,
             close_event_filter,
             app_state,
-        }
-    }
-
-    pub fn set_source(&mut self, src: QUrl) {
-        unsafe {
-            cpp!([self as "QmlApplicationHolder*", src as "QUrl"] {
-                self->view->setSource(src);
-            })
         }
     }
 
