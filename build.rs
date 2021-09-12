@@ -464,39 +464,47 @@ fn main() {
         }
     }
 
-    let (mer_target_root, cross_compile) = install_mer_hacks();
+    // let (mer_target_root, cross_compile) = install_mer_hacks();
+    let cross_compile = false;
+    let mer_target_root = "";
+
     let qt_include_path = if cross_compile {
         format!("{}/usr/include/qt5/", mer_target_root)
     } else {
-        qmake_query("QT_INSTALL_HEADERS")
+        std::env::var("DEP_QT_INCLUDE_PATH").unwrap()
+        //qmake_query("QT_INSTALL_HEADERS")
     };
     let qt_include_path = qt_include_path.trim();
+    let qt_library_path = std::env::var("DEP_QT_LIBRARY_PATH").unwrap();
 
     let mut cfg = cpp_build::Config::new();
 
-    cfg.flag(&format!("--sysroot={}", mer_target_root));
-    cfg.flag("-isysroot");
-    cfg.flag(&mer_target_root);
+    // cfg.flag(&format!("--sysroot={}", mer_target_root));
+    // cfg.flag("-isysroot");
+    // cfg.flag(&mer_target_root);
 
     // https://github.com/rust-lang/cargo/pull/8441/files
     // currently requires -Zextra-link-arg, so we're duplicating this in dotenv
-    println!("cargo:rustc-link-arg=--sysroot={}", mer_target_root);
+    // println!("cargo:rustc-link-arg=--sysroot={}", mer_target_root);
 
     let qt_version = detect_qt_version(std::path::Path::new(&qt_include_path)).unwrap();
     cfg.include(format!("{}/QtGui/{}", qt_include_path, qt_version));
 
     // This is kinda hacky. Sorry.
-    if cross_compile {
-        std::env::set_var("CARGO_FEATURE_SAILFISH", "");
-    }
-    cfg.include(format!("{}/usr/include/sailfishapp/", mer_target_root))
-        .include(&qt_include_path)
-        .include(format!("{}/QtCore", qt_include_path))
-        // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
-        // It is annoying to look at while developing, and we cannot do anything about it
-        // ourselves.
-        .flag("-Wno-deprecated-copy")
-        .build("src/lib.rs");
+    // if cross_compile {
+    //     std::env::set_var("CARGO_FEATURE_SAILFISH", "");
+    // }
+    // cfg.include(format!("{}/usr/include/sailfishapp/", mer_target_root))
+    //     .include(&qt_include_path)
+    //     .include(format!("{}/QtCore", qt_include_path))
+    //     // -W deprecated-copy triggers some warnings in old Jolla's Qt distribution.
+    //     // It is annoying to look at while developing, and we cannot do anything about it
+    //     // ourselves.
+    //     .flag("-Wno-deprecated-copy")
+    //     .build("src/lib.rs");
+
+    cfg.include(&qt_include_path)
+       .build("src/lib.rs");
 
     let contains_cpp = [
         "qmlapp/mod.rs",
@@ -523,27 +531,27 @@ fn main() {
         );
     }
 
-    let sailfish_libs: &[&str] = if cross_compile {
+    let sailfish_libs: &[&str] = &[]; /*if cross_compile {
         &["nemonotifications", "sailfishapp", "qt5embedwidget"]
     } else {
         &[]
-    };
+    };*/
     let libs = ["EGL", "dbus-1"];
     for lib in libs.iter().chain(sailfish_libs.iter()) {
         println!("cargo:rustc-link-lib{}={}", macos_lib_search, lib);
     }
 
-    if env::var("CARGO_FEATURE_HARBOUR").is_err() && cross_compile {
-        build_share_plugin(&mer_target_root, qt_include_path);
-    }
+    // if env::var("CARGO_FEATURE_HARBOUR").is_err() && cross_compile {
+    //     build_share_plugin(&mer_target_root, &qt_include_path);
+    // }
 
     if cross_compile {
         build_sqlcipher(&mer_target_root);
     }
 
-    if cross_compile {
-        prepare_rpm_build();
-    }
+    // if cross_compile {
+    //     prepare_rpm_build();
+    // }
 
     // vergen
     let mut cfg = vergen::Config::default();

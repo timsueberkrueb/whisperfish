@@ -11,7 +11,7 @@ use crate::worker::{ClientActor, SendMessage};
 use actix::prelude::*;
 use futures::prelude::*;
 use itertools::Itertools;
-use qmetaobject::*;
+use qmetaobject::prelude::*;
 
 define_model_roles! {
     enum MessageRoles for AugmentedMessage {
@@ -384,7 +384,7 @@ impl MessageModel {
             orm::SessionType::GroupV1(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
-                self.peerName = QString::from(group.name.deref());
+                self.peerName = QString::from(group.name.clone());
                 self.peerChanged();
 
                 self.group = true;
@@ -404,7 +404,7 @@ impl MessageModel {
             orm::SessionType::GroupV2(group) => {
                 self.peerTel = QString::from("");
                 self.peerUuid = QString::from("");
-                self.peerName = QString::from(group.name.deref());
+                self.peerName = QString::from(group.name.clone());
                 self.peerChanged();
 
                 self.group = true;

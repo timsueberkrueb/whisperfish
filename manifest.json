@@ -1,0 +1,16 @@
+{
+    "name": "whisperfish.username",
+    "description": "Signal client",
+    "architecture": "@CLICK_ARCH@",
+    "title": "Whisperfish",
+    "hooks": {
+        "webber": {
+            "apparmor": "whisperfish.apparmor",
+            "desktop":  "whisperfish.desktop",
+            "content-hub": "content-hub.json"
+        }
+    },
+    "version": "0.6.0",
+    "maintainer": "Username <mail@example.com>",
+    "framework" : "ubuntu-sdk-16.04"
+}

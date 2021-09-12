@@ -33,7 +33,9 @@ chrono = "0.4"
 tokio = {version="1.1", features=["time", "io-util", "net", "sync"]}
 futures = "0.3"
 pin-utils = "0.1"
-qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-sfos-rs", branch = "sailfishos" }
+qmetaobject = { version = "0.2.3" }
+qttypes = { version = "0.2.3", features = ["qtwebengine", "qtquick", "qtquickcontrols2"] }
+#qmetaobject = { version = "0.1.4", git = "https://gitlab.com/rubdos/qmetaobject-sfos-rs", branch = "sailfishos" }
 cstr = "0.2.0"
 cpp = "0.5"
 dirs = "3.0"
