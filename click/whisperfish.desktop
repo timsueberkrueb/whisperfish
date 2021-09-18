@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Whisperfish
+Exec=harbour-whisperfish --disable-gpu --disable-viz-display-compositor %U
+Terminal=false
+Type=Application
+X-Ubuntu-Touch=true

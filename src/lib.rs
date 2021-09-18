@@ -19,7 +19,13 @@ pub mod worker;
 
 pub mod schema;
 
+#[cfg(feature = "sailfish")]
 pub mod gui;
+#[cfg(not(feature = "sailfish"))]
+pub mod gui_ng;
+#[cfg(not(feature = "sailfish"))]
+pub use gui_ng as gui;
+
 pub mod store;
 
 pub fn user_agent() -> String {

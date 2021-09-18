@@ -7,6 +7,8 @@ use std::time::Duration;
 use single_instance::SingleInstance;
 
 fn main() {
+    std::env::set_var("RUST_LOG", "trace");
+
     // Read config file or get a default config
     let mut config = match config::SignalConfig::read_from_file() {
         Ok(x) => x,
@@ -36,13 +38,16 @@ fn main() {
         env_logger::init()
     }
 
-    let instance_lock = SingleInstance::new("whisperfish").unwrap();
+    // FIXME: Get this to work
+    /*let instance_lock = SingleInstance::new("whisperfish").unwrap();
     if !instance_lock.is_single() {
+        // FIXME: implement this property
+        #[cfg(feature = "sailfish")]
         if let Err(e) = dbus_show_app() {
             log::error!("{}", e);
         }
         return;
-    }
+    }*/
 
     if let Err(e) = run_main_app(config) {
         log::error!("Fatal error: {}", e);
@@ -84,6 +89,8 @@ fn run_main_app(config: config::SignalConfig) -> Result<(), anyhow::Error> {
     // Soft-blocked on https://github.com/woboq/qmetaobject-rs/issues/102
     #[cfg(feature = "sailfish")]
     gui::run(config).unwrap();
+    #[cfg(not(feature = "sailfish"))]
+    gui_ng::run(config).unwrap();
 
     log::info!("Shut down.");
 
